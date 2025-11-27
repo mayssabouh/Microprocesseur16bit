@@ -1,0 +1,22 @@
+architecture arch of memory_async is
+    type mem_type is array (0 to 31) of std_logic_vector(15 downto 0);
+    signal mem : mem_type := (
+        0  => "0000100000000000", 1 => "0011100000000001", 2 => "0101000000001000",
+        3  => "0100000000001101", 8 => "0001100000000000", 9 => "0000100000000010",
+        10 => "0010100000000011", 11 => "0001100000000010", 12 => "0100000000000000",
+        13 => "0111000000000000", 16 => std_logic_vector(to_unsigned(3,16)),
+        17 => (others => '0'), 18 => std_logic_vector(to_unsigned(1,16)),
+        others => (others => '0')
+    );
+begin
+    -- CORRECTION 1 : On ne prend que les 5 bits de poids faible (4 downto 0)
+    data <= mem(to_integer(unsigned(addr(4 downto 0)))) when RnW = '1' else (others => 'Z');
+
+    process(RnW, addr, data_s)
+    begin
+        if RnW = '0' then
+            -- CORRECTION 2 : Pareil ici pour l'écriture
+            mem(to_integer(unsigned(addr(4 downto 0)))) <= data_s;
+        end if;
+    end process;
+end architecture;
